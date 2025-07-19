@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wi-Fi Access Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: #f4f4f4;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    textarea {
+      width: 80%;
+      margin-top: 10px;
+      height: 60px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
 
+  <h1>Office Wi-Fi Access</h1>
+  <p>Scan your QR Code to continue</p>
+
+  <input type="text" id="qrInput" placeholder="Simulate QR Code Value" />
+  <input type="text" id="siteInput" placeholder="Enter Site URL (e.g., facebook.com)" />
+  <button onclick="checkAccess()">Submit</button>
+
+  <div id="result"></div>
+  <div id="reflectionBox" style="display: none;">
+    <p><strong>Access Denied.</strong> Why are you trying to access this now?</p>
+    <textarea id="reason" placeholder="Enter your reason..."></textarea><br />
+    <button onclick="submitReason()">Submit Reason</button>
+  </div>
+
+  <script>
+    function checkAccess() {
+      const qr = document.getElementById("qrInput").value.trim().toUpperCase();
+      const site = document.getElementById("siteInput").value.trim().toLowerCase();
+      const currentHour = new Date().getHours();
+      const currentMinute = new Date().getMinutes();
+      const result = document.getElementById("result");
+      const reflectionBox = document.getElementById("reflectionBox");
+
+      const blockedSites = ["facebook.com", "instagram.com", "snapchat.com", "spotify.com"];
+
+      if (!qr.startsWith("EMP") || site === "") {
+        result.innerHTML = "❌ Invalid QR Code or empty site.";
+        reflectionBox.style.display = "none";
+        return;
+      }
+
+      const isBreakTime = (currentHour === 13) || (currentHour === 16 && currentMinute <= 15);
+      const isWorkTime = (currentHour >= 9 && currentHour < 20) && !isBreakTime;
+
+      if (isBreakTime) {
+        result.innerHTML = `✅ Break Time Access Granted to ${site}`;
+        reflectionBox.style.display = "none";
+      } else if (isWorkTime) {
+        if (blockedSites.includes(site.replace("www.", ""))) {
+          result.innerHTML = `🚫 ${site} is blocked during work hours.`;
+          reflectionBox.style.display = "block";
+        } else {
+          result.innerHTML = `✅ Access Granted to ${site} during Office Hours.`;
+          reflectionBox.style.display = "none";
+        }
+      } else {
+        result.innerHTML = "⏱️ Access Denied. Not within office hours.";
+        reflectionBox.style.display = "block";
+      }
+    }
+
+    function submitReason() {
+      const reason = document.getElementById("reason").value;
+      if (reason.trim() === "") {
+        alert("Please enter a reason before submitting.");
+        return;
+      }
+      alert("Reason submitted for review: " + reason);
+      document.getElementById("reflectionBox").style.display = "none";
+    }
+  </script>
+
+</body>
+  </html>
