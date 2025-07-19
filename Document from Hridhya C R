@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wi-Fi Access Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: #f4f4f4;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    textarea {
+      width: 80%;
+      margin-top: 10px;
+      height: 60px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Office Wi-Fi Access</h1>
+  <p>Scan your QR Code to continue</p>
+
+  <input type="text" id="qrInput" placeholder="Simulate QR Code Value" />
+  <button onclick="checkAccess()">Submit</button>
+
+  <div id="result"></div>
+
+  <div id="reflectionBox" style="display: none;">
+    <p><strong>Access Denied.</strong> Why are you trying to access this now?</p>
+    <textarea id="reason" placeholder="Enter your reason..."></textarea><br />
+    <button onclick="submitReason()">Submit Reason</button>
+  </div>
+
+  <script>
+    function checkAccess() {
+      const qr = document.getElementById("qrInput").value.trim();
+      const result = document.getElementById("result");
+      const reflectionBox = document.getElementById("reflectionBox");
+
+      result.innerHTML = "";
+      reflectionBox.style.display = "none";
+
+      if (qr === "") {
+        result.innerHTML = "⚠️ Please enter a QR code value.";
+        return;
+      }
+
+      if (!qr.startsWith("EMP")) {
+        result.innerHTML = "❌ Invalid QR Code.";
+        return;
+      }
+
+      // TESTING: Always grant access
+      result.innerHTML = "✅ Access Granted. You are connected to the Break-Time Wi-Fi.";
+      reflectionBox.style.display = "none";
+    }
+
+    function submitReason() {
+      const reason = document.getElementById("reason").value.trim();
+      if (reason === "") {
+        alert("⚠️ Please enter a reason before submitting.");
+        return;
+      }
+      alert("📩 Reason submitted for review: " + reason);
+      document.getElementById("reflectionBox").style.display = "none";
+      document.getElementById("reason").value = "";
+    }
+  </script>
+
+</body>
+</html>
