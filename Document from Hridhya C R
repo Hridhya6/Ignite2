@@ -40,10 +40,10 @@
   <p>Scan your QR Code to continue</p>
 
   <input type="text" id="qrInput" placeholder="Simulate QR Code Value" />
+  <input type="text" id="siteInput" placeholder="Enter Site URL (e.g., facebook.com)" />
   <button onclick="checkAccess()">Submit</button>
 
   <div id="result"></div>
-
   <div id="reflectionBox" style="display: none;">
     <p><strong>Access Denied.</strong> Why are you trying to access this now?</p>
     <textarea id="reason" placeholder="Enter your reason..."></textarea><br />
@@ -52,37 +52,49 @@
 
   <script>
     function checkAccess() {
-      const qr = document.getElementById("qrInput").value.trim();
+      const qr = document.getElementById("qrInput").value.trim().toUpperCase();
+      const site = document.getElementById("siteInput").value.trim().toLowerCase();
+      const currentHour = new Date().getHours();
+      const currentMinute = new Date().getMinutes();
       const result = document.getElementById("result");
       const reflectionBox = document.getElementById("reflectionBox");
 
-      result.innerHTML = "";
-      reflectionBox.style.display = "none";
+      const blockedSites = ["facebook.com", "instagram.com", "snapchat.com", "spotify.com"];
 
-      if (qr === "") {
-        result.innerHTML = "⚠️ Please enter a QR code value.";
+      if (!qr.startsWith("EMP") || site === "") {
+        result.innerHTML = "❌ Invalid QR Code or empty site.";
+        reflectionBox.style.display = "none";
         return;
       }
 
-      if (!qr.startsWith("EMP")) {
-        result.innerHTML = "❌ Invalid QR Code.";
-        return;
-      }
+      const isBreakTime = (currentHour === 13) || (currentHour === 16 && currentMinute <= 15);
+      const isWorkTime = (currentHour >= 9 && currentHour < 20) && !isBreakTime;
 
-      // TESTING: Always grant access
-      result.innerHTML = "✅ Access Granted. You are connected to the Break-Time Wi-Fi.";
-      reflectionBox.style.display = "none";
+      if (isBreakTime) {
+        result.innerHTML = `✅ Break Time Access Granted to ${site}`;
+        reflectionBox.style.display = "none";
+      } else if (isWorkTime) {
+        if (blockedSites.includes(site.replace("www.", ""))) {
+          result.innerHTML = `🚫 ${site} is blocked during work hours.`;
+          reflectionBox.style.display = "block";
+        } else {
+          result.innerHTML = `✅ Access Granted to ${site} during Office Hours.`;
+          reflectionBox.style.display = "none";
+        }
+      } else {
+        result.innerHTML = "⏱️ Access Denied. Not within office hours.";
+        reflectionBox.style.display = "block";
+      }
     }
 
     function submitReason() {
-      const reason = document.getElementById("reason").value.trim();
-      if (reason === "") {
-        alert("⚠️ Please enter a reason before submitting.");
+      const reason = document.getElementById("reason").value;
+      if (reason.trim() === "") {
+        alert("Please enter a reason before submitting.");
         return;
       }
-      alert("📩 Reason submitted for review: " + reason);
+      alert("Reason submitted for review: " + reason);
       document.getElementById("reflectionBox").style.display = "none";
-      document.getElementById("reason").value = "";
     }
   </script>
 
